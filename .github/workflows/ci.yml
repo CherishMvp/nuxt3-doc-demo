@@ -13,7 +13,7 @@ on:
       - 'bugfix/*'
 
 jobs:
-  build-and-test:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +29,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'  # 或者你使用的其他版本
+        node-version: '18'  # 你可以调整为你所需的 Node 版本
 
     # Cache pnpm modules to speed up the workflow
     - name: Cache pnpm modules
@@ -48,10 +48,16 @@ jobs:
     - name: Build Nuxt 3 project
       run: pnpm build
 
-    # Run tests (you可以根据你使用的测试框架调整此命令)
-    # - name: Run tests
-    #   run: pnpm test
+    # Generate static files for GitHub Pages
+    - name: Generate static files
+      run: pnpm generate  # 这个命令会在 `/dist` 目录下生成静态文件
 
-    # Optional: Deploy to a staging or production environment if needed
-    # - name: Deploy to production
-    #   run: pnpm deploy  # 你可以根据需要增加部署步骤
+    # Deploy to GitHub Pages
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}  # 自动获取 GitHub token 用于权限
+        publish_dir: ./dist  # 发布目录，通常是 Nuxt 生成的 /dist 目录
+        publish_branch: gh-pages  # 发布到 gh-pages 分支
+        user_name: 'github-actions'  # 提交时的用户名
+        user_email: 'github-actions@github.com'  # 提交时的用户邮箱
