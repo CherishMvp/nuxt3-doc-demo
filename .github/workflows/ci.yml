@@ -1,0 +1,53 @@
+name: Nuxt 3 CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/*'
+      - 'bugfix/*'
+  pull_request:
+    branches:
+      - main
+      - 'feature/*'
+      - 'bugfix/*'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Checkout the code
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    # Set up Node.js environment
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'  # 或者你使用的其他版本
+
+    # Cache pnpm modules to speed up the workflow
+    - name: Cache pnpm modules
+      uses: actions/cache@v3
+      with:
+        path: ~/.pnpm-store
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-
+
+    # Install dependencies using pnpm
+    - name: Install dependencies
+      run: pnpm install
+
+    # Build the Nuxt 3 project
+    - name: Build Nuxt 3 project
+      run: pnpm build
+
+    # Run tests (you可以根据你使用的测试框架调整此命令)
+    # - name: Run tests
+    #   run: pnpm test
+
+    # Optional: Deploy to a staging or production environment if needed
+    # - name: Deploy to production
+    #   run: pnpm deploy  # 你可以根据需要增加部署步骤
